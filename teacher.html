@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>교사용 채점 관리</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+
+    <!-- 비밀번호 화면 -->
+    <div id="loginScreen">
+      <div class="login-wrapper">
+        <div class="login-box">
+          <div class="header-icon">🔐</div>
+          <h1>교사용 채점 관리</h1>
+          <p class="subtitle" style="margin-bottom:28px;">접근 비밀번호를 입력해주세요</p>
+          <input
+            type="password"
+            id="passwordInput"
+            placeholder="비밀번호 입력"
+            style="width:100%; padding:14px; border:2px solid #d1fae5; border-radius:10px;
+                   font-size:1rem; font-family:'Noto Sans KR',sans-serif; outline:none; margin-bottom:12px;"
+          />
+          <div id="loginError" class="error-msg hidden" style="margin-bottom:8px;">
+            ❗ 비밀번호가 올바르지 않습니다.
+          </div>
+          <button id="loginBtn" class="submit-btn" style="width:100%;">
+            🔓 입장하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 교사용 대시보드 -->
+    <div id="dashboard" class="hidden">
+
+      <!-- 사이드바 -->
+      <div class="teacher-layout">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div style="font-size:1.5rem;">🌱</div>
+            <div>
+              <div style="font-weight:700; color:#166534; font-size:0.95rem;">채점 관리</div>
+              <div style="font-size:0.78rem; color:#9ca3af;">나의 마음 씨앗과 성장 꽃</div>
+            </div>
+          </div>
+          <div class="sidebar-label">제출 학생 목록</div>
+          <div id="studentList"></div>
+          <div id="emptyState" class="sidebar-empty">
+            <div style="font-size:2rem; margin-bottom:8px;">📭</div>
+            <p>아직 제출된 결과가 없습니다.</p>
+          </div>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="teacher-main">
+          <!-- 기본 상태 -->
+          <div id="defaultState" class="default-state">
+            <div style="font-size:4rem; margin-bottom:16px;">👈</div>
+            <h2 style="color:#166534; margin-bottom:8px;">학생을 선택해주세요</h2>
+            <p style="color:#9ca3af; font-size:0.9rem;">왼쪽 목록에서 학생을 클릭하면 상세 결과를 확인할 수 있습니다.</p>
+          </div>
+
+          <!-- 학생 상세 -->
+          <div id="detailPanel" class="hidden">
+
+            <!-- 상단 헤더 -->
+            <div class="detail-header">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div class="student-avatar">🧑‍🎓</div>
+                <div>
+                  <h2 id="detailStudentName" style="font-size:1.3rem; color:#166534;"></h2>
+                  <p id="detailSubmittedAt" style="font-size:0.85rem; color:#9ca3af;"></p>
+                </div>
+              </div>
+              <div class="detail-total">
+                <span id="detailTotal" style="font-size:2rem; font-weight:700; color:#166534;"></span>
+                <span style="font-size:0.9rem; color:#9ca3af;">/ 20점</span>
+              </div>
+            </div>
+
+            <!-- 루브릭 바 -->
+            <div class="detail-section">
+              <h3 class="section-title">📊 항목별 점수</h3>
+              <div id="rubricBars"></div>
+            </div>
+
+            <!-- 그림 + 에세이 2열 -->
+            <div class="detail-grid">
+              <div class="detail-section">
+                <h3 class="section-title">🎨 학생 그림</h3>
+                <div class="canvas-preview">
+                  <img id="modalCanvas" src="" alt="학생 그림" style="width:100%; display:block;" />
+                </div>
+              </div>
+              <div class="detail-section">
+                <h3 class="section-title">📝 에세이 원문</h3>
+                <div id="modalEssay" class="essay-display" style="height:100%; min-height:180px;"></div>
+              </div>
+            </div>
+
+            <!-- 키워드 -->
+            <div class="detail-section">
+              <h3 class="section-title">🏷️ 핵심 키워드</h3>
+              <div id="modalKeywords" class="keywords"></div>
+            </div>
+
+            <!-- AI 피드백 수정 -->
+            <div class="detail-section">
+              <h3 class="section-title">
+                💬 교사 피드백
+                <span style="font-size:0.78rem; color:#9ca3af; font-weight:400; margin-left:6px;">AI 초안 — 직접 수정 가능</span>
+              </h3>
+              <textarea
+                id="modalFeedback"
+                rows="5"
+                style="width:100%; padding:14px; border:2px solid #d1fae5; border-radius:10px;
+                       font-family:'Noto Sans KR',sans-serif; font-size:0.92rem; line-height:1.8;
+                       color:#374151; resize:vertical; outline:none;"
+              ></textarea>
+              <div style="display:flex; gap:8px; margin-top:10px; justify-content:flex-end;">
+                <button id="saveFeedbackBtn" class="submit-btn" style="padding:10px 24px; font-size:0.9rem;">
+                  💾 저장
+                </button>
+                <button id="exportBtn" class="tool-btn" style="padding:10px 24px; font-size:0.9rem; border-color:#86efac;">
+                  📥 추출
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script type="module" src="/src/teacher.js"></script>
+  </body>
+</html>
