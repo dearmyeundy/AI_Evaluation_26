@@ -19,7 +19,7 @@ export default async (req) => {
 아래 원칙에 따라 대화하세요:
 - 소크라테스식 질문으로 학생이 스스로 생각을 발전시키도록 유도하세요
 - 한 번에 질문은 1개만 하세요
-- 비계(scaffold)를 제공할 때는 힌트를 주되 답을 직접 알려주지 마세요
+- 비계를 제공할 때는 힌트를 주되 답을 직접 알려주지 마세요
 - 중학생이 이해할 수 있는 친근한 말투로 작성하세요
 - 2~3문장으로 짧게 작성하세요`;
 
@@ -30,7 +30,6 @@ export default async (req) => {
 - 도형 의미 부여 및 설명 일관성: ${result.scores.symbolism}점 (${result.levels.symbolism})
 - 과제 조건 준수: ${result.scores.format}점 (${result.levels.format})
 - 에세이 내용: ${essay}
-
 가장 성장이 필요한 부분을 중심으로 학생이 더 깊이 생각할 수 있는 첫 번째 질문을 해주세요.
 JSON으로만 응답: {"message": "질문 내용", "isComplete": false}`
       : isLastTurn
@@ -53,4 +52,38 @@ JSON으로만 응답: {"message": "질문 내용", "isComplete": false}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max
+        max_tokens: 400,
+        system: systemPrompt,
+        messages: apiMessages,
+      }),
+    });
+
+    const data = await response.json();
+    const resultText = data.content[0].text;
+    const cleaned = resultText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      parsed = { message: resultText, isComplete: false };
+    }
+
+    return new Response(JSON.stringify(parsed), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+};
+
+export const config = { path: "/api/growth" };

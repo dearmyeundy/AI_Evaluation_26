@@ -471,7 +471,12 @@ hintBtn.addEventListener("click", async () => {
     });
 
     const data = await response.json();
-    hintContent.innerHTML = `<p>${data.hint}</p>`;
+console.log("힌트 응답:", data);
+if (data.hint) {
+  hintContent.innerHTML = `<p>${data.hint}</p>`;
+} else {
+  hintContent.innerHTML = `<p>${data.error || "힌트를 불러오지 못했어요 😢"}</p>`;
+}
   } catch (err) {
     hintContent.innerHTML = `<p style="color:#dc2626;">힌트를 불러오지 못했어요 😢</p>`;
   }
