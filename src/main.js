@@ -378,46 +378,18 @@ submitBtn.addEventListener("click", async () => {
   errorMsg.classList.add("hidden");
 
   try {
-    const response = await fetch("/api/score", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ essay, shapes: shapeSummary, name, canvasImage, submissionId  }),
-    });
-
-    if (!response.ok) throw new Error("서버 오류가 발생했습니다.");
-
-    const result = await response.json();
-
-    // 캔버스 이미지 저장
-// 선택 상태 해제 후 깔끔하게 캡처
-selectedShape = null;
-drawAll();
-const canvasImage = canvas.toDataURL("image/png");
-
-// sessionStorage에 저장 (결과 페이지용)
-sessionStorage.setItem("scoreResult", JSON.stringify(result));
-sessionStorage.setItem("essayText", essay);
-sessionStorage.setItem("studentName", name);
-
-// 승인 상태 초기화
-const submissionId = Date.now().toString();
-sessionStorage.setItem("submissionId", submissionId);
-
-    // localStorage에 저장 (교사 페이지용)
-const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-submissions.push({
-  id: submissionId,
-  name,
-  essay,
-  result,
-  canvasImage,
-  approved: false,
-  submittedAt: new Date().toLocaleString("ko-KR"),
+   // Background Function 호출 (즉시 반환)
+await fetch("/api/score", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ essay, shapes: shapeSummary, name, canvasImage, submissionId }),
 });
 
-    localStorage.setItem("submissions", JSON.stringify(submissions));
+// 바로 대기 화면으로 이동
+sessionStorage.setItem("essayText", essay);
+sessionStorage.setItem("studentName", name);
+window.location.href = "/waiting.html";
 
-    window.location.href = "/waiting.html";
   } catch (err) {
     errorMsg.textContent = "❗ " + err.message;
     errorMsg.classList.remove("hidden");

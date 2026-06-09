@@ -1,23 +1,6 @@
 import { getStore } from "@netlify/blobs";
 
-export default async (req, context) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
-    });
-  }
-
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
+export default async (req) => {
   try {
     const { essay, shapes, name, canvasImage, submissionId } = await req.json();
 
@@ -39,11 +22,7 @@ export default async (req, context) => {
 - 에세이 내용: ${essay}
 
 [키워드 추출 가이드]
-아래 목록에서 학생의 수준에 맞는 키워드를 3개 선택하세요.
-- 자기 경험 연계 서술: #구체적_경험_연결, #삶의_투영, #자기_서사_완성, #경험_연계_시도, #성장_서술, #발전_가능성, #일반적_다짐, #경험_연결_부족, #의지_표명, #줄거리_요약, #경험_서술_없음, #시작점
-- 그림-글 연결 일관성: #완벽한_일치, #설득력_높음, #상징_고도화, #의도_전달, #적절한_연계, #구조적_연결, #설명_모호, #부분적_연결, #보완_필요, #의미_단절, #설명_부족, #불일치
-- 도형 의미 부여 및 설명 일관성: #구체적_의미_부여, #배치_설명_완성, #일관된_서술, #의미_부여_시도, #설명_연결, #배치_의도_전달, #단순_설명, #의미_부여_미흡, #추상적_서술, #의미_설명_없음, #배치_의도_불명, #미완성
-- 과제 조건 준수: #조건_완벽_준수, #형식_완성, #가이드_이행, #대부분_준수, #일부_미흡, #문장_수정_필요, #조건_일부_위반, #규칙_재확인, #형식_보완, #조건_전반_위반, #미완성, #가이드_미달
+학생 수준에 맞는 핵심 키워드 3개를 #태그 형식으로 추출하세요.
 
 [수준별 피드백 전략]
 - 완성: 강점을 동료처럼 인정하고, 더 깊은 사고로 확장할 수 있는 질문을 한 가지 덧붙이세요.
@@ -105,7 +84,7 @@ export default async (req, context) => {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 800,
+        max_tokens: 1000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -120,7 +99,7 @@ export default async (req, context) => {
     const cleaned = resultText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const result = JSON.parse(cleaned);
 
-    // Netlify Blobs에 저장
+    // Blobs에 저장
     const store = getStore("submissions");
     const submission = {
       id: submissionId,
@@ -133,22 +112,12 @@ export default async (req, context) => {
     };
     await store.setJSON(submissionId, submission);
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    console.error("채점 오류:", error);
   }
 };
 
-export const config = { path: "/api/score" };
+export const config = {
+  path: "/api/score",
+  type: "background",
+};
