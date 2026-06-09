@@ -657,3 +657,290 @@ textarea:focus {
   .toolbar { gap: 6px; }
   .shape-btn, .tool-btn { padding: 6px 12px; font-size: 0.85rem; }
 }
+
+/* 에세이 + 힌트 레이아웃 */
+.essay-hint-wrapper {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.essay-input-area {
+  flex: 1;
+}
+
+.essay-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+/* 힌트 버튼 */
+.hint-btn {
+  padding: 6px 16px;
+  background: #fefce8;
+  border: 2px solid #fde047;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-family: "Noto Sans KR", sans-serif;
+  font-weight: 700;
+  color: #854d0e;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hint-btn:hover {
+  background: #fde047;
+}
+
+/* 말풍선 */
+.hint-bubble {
+  width: 260px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 2px solid #fde047;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+.hint-bubble::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 24px;
+  border-width: 6px 12px 6px 0;
+  border-style: solid;
+  border-color: transparent #fde047 transparent transparent;
+}
+
+.hint-bubble-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #854d0e;
+  margin-bottom: 10px;
+}
+
+.hint-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.hint-content {
+  font-size: 0.88rem;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.hint-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .essay-hint-wrapper { flex-direction: column; }
+  .hint-bubble { width: 100%; }
+  .hint-bubble::before { display: none; }
+}
+
+/* 성장 대화 */
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.chat-bubble.ai {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+}
+
+.chat-bubble.ai::before {
+  content: "🌱 AI 선생님";
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #16a34a;
+  margin-bottom: 4px;
+}
+
+.chat-bubble.student {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+}
+
+.chat-bubble.student::before {
+  content: "✏️ 나의 답변";
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  margin-bottom: 4px;
+}
+
+.chat-input-area {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 14px;
+}
+
+.reflection-complete {
+  text-align: center;
+  padding: 16px;
+}
+/* 대기 화면 */
+.waiting-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.waiting-box {
+  background: #fff;
+  border-radius: 20px;
+  padding: 48px 36px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+.waiting-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.waiting-box h1 {
+  font-size: 1.6rem;
+  color: #166534;
+  margin-bottom: 12px;
+}
+
+.waiting-desc {
+  font-size: 0.95rem;
+  color: #6b7280;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.waiting-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #16a34a;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* 대문 페이지 */
+.home-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #fefce8 100%);
+}
+
+.home-box {
+  background: #fff;
+  border-radius: 24px;
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+.home-header {
+  margin-bottom: 36px;
+}
+
+.home-header h1 {
+  font-size: 1.6rem;
+  color: #166534;
+  margin-bottom: 8px;
+}
+
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  text-decoration: none;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.student-btn {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 2px solid #86efac;
+}
+
+.teacher-btn {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 2px solid #93c5fd;
+}
+
+.home-btn-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+}
+
+.home-btn-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.home-btn-desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+}

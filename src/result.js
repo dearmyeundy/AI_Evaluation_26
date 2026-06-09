@@ -92,3 +92,92 @@ if (!raw) {
     },
   });
 }
+
+// 성장 질문 + 비계 대화
+const chatHistory = [];
+let turnCount = 0;
+const MAX_TURNS = 2;
+
+async function callGrowthAPI(messages) {
+  const scoreResult = JSON.parse(sessionStorage.getItem("scoreResult"));
+  const response = await fetch("/api/growth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, result: scoreResult, essay: sessionStorage.getItem("essayText") }),
+  });
+  const data = await response.json();
+  return data;
+}
+
+function addChatBubble(type, text) {
+  const chatMessages = document.getElementById("chatMessages");
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble ${type}`;
+  bubble.innerHTML = text;
+  chatMessages.appendChild(bubble);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 초기 질문 로드
+async function loadInitialQuestion() {
+  try {
+    console.log("성장 질문 API 호출 시작");
+    const data = await callGrowthAPI([]);
+    console.log("성장 질문 API 응답:", data);
+    document.getElementById("growthLoading").classList.add("hidden");
+    document.getElementById("growthChat").classList.remove("hidden");
+    addChatBubble("ai", data.message);
+    chatHistory.push({ role: "assistant", content: data.message });
+  } catch (err) {
+    console.error("성장 질문 오류:", err);
+    document.getElementById("growthLoading").classList.add("hidden");
+  }
+}
+
+// 답변 전송
+document.getElementById("chatSendBtn").addEventListener("click", async () => {
+  const input = document.getElementById("chatInput");
+  const answer = input.value.trim();
+  if (!answer) return;
+
+  addChatBubble("student", answer);
+  chatHistory.push({ role: "user", content: answer });
+  input.value = "";
+  turnCount++;
+
+  const sendBtn = document.getElementById("chatSendBtn");
+  sendBtn.disabled = true;
+  sendBtn.textContent = "💭 생각하는 중...";
+
+  try {
+    const data = await callGrowthAPI(chatHistory);
+
+    if (turnCount >= MAX_TURNS || data.isComplete) {
+      // 최종 성찰 한 줄 표시
+      document.getElementById("chatMessages").parentElement.classList.add("hidden");
+      document.getElementById("chatInput").parentElement.classList.add("hidden");
+      document.getElementById("finalReflection").classList.remove("hidden");
+      document.getElementById("reflectionText").textContent = data.reflection || data.message;
+
+      // 교사 페이지용 저장
+      const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+      if (submissions.length > 0) {
+        submissions[submissions.length - 1].reflection = data.reflection || data.message;
+        localStorage.setItem("submissions", JSON.stringify(submissions));
+      }
+    } else {
+      addChatBubble("ai", data.message);
+      chatHistory.push({ role: "assistant", content: data.message });
+      sendBtn.disabled = false;
+      sendBtn.textContent = "💬 답변 보내기";
+    }
+  } catch (err) {
+    sendBtn.disabled = false;
+    sendBtn.textContent = "💬 답변 보내기";
+  }
+});
+
+// 결과 페이지 로드 시 질문 시작
+if (raw) {
+  loadInitialQuestion();
+}

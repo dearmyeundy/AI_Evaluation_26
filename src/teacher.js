@@ -146,7 +146,28 @@ document.getElementById("saveFeedbackBtn").addEventListener("click", () => {
   btn.textContent = "✅ 저장됨";
   setTimeout(() => { btn.textContent = "💾 저장"; }, 2000);
 });
+// 승인 버튼
+document.getElementById("approveBtn").addEventListener("click", () => {
+  if (currentIndex === null) return;
+  const submissions = getSubmissions();
 
+  // 피드백 저장 + 승인 처리
+  submissions[currentIndex].teacherFeedback = document.getElementById("modalFeedback").value;
+  submissions[currentIndex].approved = true;
+  localStorage.setItem("submissions", JSON.stringify(submissions));
+
+  const btn = document.getElementById("approveBtn");
+  btn.textContent = "✅ 승인 완료!";
+  btn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
+  btn.disabled = true;
+
+  // 카드에 승인 표시
+  const card = document.getElementById(`card-${currentIndex}`);
+  if (card) {
+    card.style.borderColor = "#22c55e";
+    card.style.background = "#f0fdf4";
+  }
+});
 // 추출
 document.getElementById("exportBtn").addEventListener("click", () => {
   if (currentIndex === null) return;

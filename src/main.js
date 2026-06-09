@@ -399,18 +399,25 @@ sessionStorage.setItem("scoreResult", JSON.stringify(result));
 sessionStorage.setItem("essayText", essay);
 sessionStorage.setItem("studentName", name);
 
+// 승인 상태 초기화
+const submissionId = Date.now().toString();
+sessionStorage.setItem("submissionId", submissionId);
+
     // localStorage에 저장 (교사 페이지용)
-    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-    submissions.push({
+const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+submissions.push({
+  id: submissionId,
   name,
   essay,
   result,
   canvasImage,
+  approved: false,
   submittedAt: new Date().toLocaleString("ko-KR"),
 });
+
     localStorage.setItem("submissions", JSON.stringify(submissions));
 
-    window.location.href = "/result.html";
+    window.location.href = "/waiting.html";
   } catch (err) {
     errorMsg.textContent = "❗ " + err.message;
     errorMsg.classList.remove("hidden");
@@ -431,4 +438,45 @@ if (savedShapes) {
   shapes = JSON.parse(savedShapes);
   drawAll();
 }
+});
+
+// 힌트 기능
+const hintBtn = document.getElementById("hintBtn");
+const hintBubble = document.getElementById("hintBubble");
+const hintContent = document.getElementById("hintContent");
+const hintClose = document.getElementById("hintClose");
+
+hintBtn.addEventListener("click", async () => {
+  const essay = document.getElementById("essayInput").value.trim();
+  const shapeSummary = {
+    circle: shapes.filter((s) => s.type === "circle").length,
+    triangle: shapes.filter((s) => s.type === "triangle").length,
+    rect: shapes.filter((s) => s.type === "rect").length,
+    line: shapes.filter((s) => s.type === "line").length,
+  };
+
+  // 말풍선 표시 + 로딩
+  hintBubble.classList.remove("hidden");
+  hintContent.innerHTML = `
+    <div class="hint-loading">
+      <span class="spinner"></span> 힌트를 생각하는 중...
+    </div>
+  `;
+
+  try {
+    const response = await fetch("/api/hint", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ essay, shapes: shapeSummary }),
+    });
+
+    const data = await response.json();
+    hintContent.innerHTML = `<p>${data.hint}</p>`;
+  } catch (err) {
+    hintContent.innerHTML = `<p style="color:#dc2626;">힌트를 불러오지 못했어요 😢</p>`;
+  }
+});
+
+hintClose.addEventListener("click", () => {
+  hintBubble.classList.add("hidden");
 });

@@ -12,121 +12,37 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div class="container">
-      <!-- 헤더 -->
-      <header>
-        <div class="header-icon">🌱</div>
-        <h1>나의 마음 씨앗과 성장 꽃</h1>
-        <p class="subtitle">그림책 『너는 어떤 씨앗이니?』 독후 활동</p>
-      </header>
-
-      <!-- 과제 안내 -->
-<div class="guide-box">
-  <p class="guide-question">
-    "여러분의 마음속에는 어떤 꽃을 피울 씨앗이 자라고 있나요?"
-  </p>
-  <p class="guide-desc">
-    최숙희 작가님의 그림책 『너는 어떤 씨앗이니?』를 함께 읽고, 아직 발견하지 못한 여러분의 소중한 꿈과 가능성을 찾아보려 합니다. 화려한 그림 실력은 중요하지 않습니다. 동그라미, 세모, 네모라는 단순한 모양만으로 여러분의 이야기를 담아주세요. 선생님과 멋지게 성장한 미래의 여러분이 오늘의 도전을 진심으로 응원하며 기다리고 있습니다.
-  </p>
-</div>
-
-<!-- 수행 과제 안내 삭제 후 캔버스/에세이 섹션 설명으로 이동 -->
-
-      <!-- 수행 1: 캔버스 -->
-      <section class="task-section">
-        <h2>✏️ 수행 1. 마음 씨앗과 성장 꽃 그리기</h2>
-        <p class="task-desc">
-  도형 버튼을 클릭해서 캔버스에 추가하고, 드래그로 위치를 조정하세요.
-</p>
-<div class="essay-guide">
-  <div class="guide-step">
-    <span class="step-badge">도형</span>
-    <span>동그라미(○), 세모(△), 네모(□)와 선만을 사용하여 나의 잠재력(씨앗)이나 미래의 모습(꽃)을 그려보세요.</span>
-  </div>
-  <div class="guide-step">
-    <span class="step-badge">색상</span>
-    <span>색칠은 하지 않고 검은색 선으로만 표현합니다.</span>
-  </div>
-  <div class="guide-step">
-    <span class="step-badge">배치</span>
-    <span>모양의 크기와 위치를 고민하며 나만의 상징을 만들어 보세요.</span>
-  </div>
-</div>
-
-        <!-- 도형 도구 -->
-        <div class="toolbar">
-          <button class="shape-btn" data-shape="circle">○ 원</button>
-          <button class="shape-btn" data-shape="triangle">△ 세모</button>
-          <button class="shape-btn" data-shape="rect">□ 네모</button>
-          <button class="shape-btn" data-shape="line">╱ 선</button>
-          <button class="tool-btn" id="deleteBtn">🗑 삭제</button>
-          <button class="tool-btn" id="clearBtn">전체 지우기</button>
+    <div class="home-wrapper">
+      <div class="home-box">
+        <!-- 헤더 -->
+        <div class="home-header">
+          <div style="font-size:64px; margin-bottom:16px;">🌱</div>
+          <h1>나의 마음 씨앗과 성장 꽃</h1>
+          <p class="subtitle">그림책 『너는 어떤 씨앗이니?』 AI 기반 독후 활동</p>
         </div>
 
-        <!-- 캔버스 -->
-        <div class="canvas-wrapper">
-          <canvas id="drawingCanvas" width="600" height="400"></canvas>
-        </div>
-        <p class="canvas-hint">💡 도형을 클릭하면 선택(파란 테두리), 드래그하면 이동, 선택 후 삭제 버튼으로 제거</p>
-<div style="text-align:right; margin-top:10px;">
-  <button id="saveCanvasBtn" class="tool-btn" style="border-color:#22c55e; color:#16a34a;">
-    💾 그림 저장하기
-  </button>
-  <span id="saveCanvasMsg" class="hidden" style="font-size:0.85rem; color:#16a34a; margin-left:8px;">✅ 저장되었습니다!</span>
-</div>
-      </section>
-
-      <!-- 수행 2: 에세이 -->
-      <section class="task-section">
-        <h2>📝 수행 2. 다섯 문장 성찰 에세이 쓰기</h2>
-        <p class="task-desc">아래 가이드에 따라 5문장으로 작성해주세요.</p>
-
-        <div class="essay-guide">
-          <div class="guide-step">
-            <span class="step-badge">1문장</span>
-            <span>📖 <strong>[장면 선택]</strong> 책에서 가장 기억에 남는 장면이나 씨앗은 무엇인가요?</span>
-          </div>
-          <div class="guide-step">
-            <span class="step-badge">2문장</span>
-            <span>🔷 <strong>[도형 의미]</strong> 내가 사용한 도형들은 나의 어떤 성격이나 잠재력을 나타내나요?</span>
-          </div>
-          <div class="guide-step">
-            <span class="step-badge">2문장</span>
-            <span>🌸 <strong>[연결과 다짐]</strong> 씨앗이 나중에 어떤 꽃으로 피어나길 바라나요? 나의 미래 다짐을 적어주세요.</span>
-          </div>
+        <!-- 접속 버튼 -->
+        <div class="home-buttons">
+          <a href="/student.html" class="home-btn student-btn">
+            <div class="home-btn-icon">🧑‍🎓</div>
+            <div>
+              <div class="home-btn-title">학생 입장</div>
+              <div class="home-btn-desc">과제를 작성하고 AI 피드백을 받아요</div>
+            </div>
+          </a>
+          <a href="/teacher.html" class="home-btn teacher-btn">
+            <div class="home-btn-icon">👩‍🏫</div>
+            <div>
+              <div class="home-btn-title">교사 입장</div>
+              <div class="home-btn-desc">학생 결과를 검토하고 승인해요</div>
+            </div>
+          </a>
         </div>
 
-        <textarea
-          id="essayInput"
-          placeholder="여기에 5문장으로 작성해주세요..."
-          rows="8"
-        ></textarea>
-        <div class="char-count"><span id="sentenceCount">0</span>문장 작성됨</div>
-      </section>
-
-      <!-- 이름 입력 -->
-      <div class="task-section">
-      <h2>🙋 이름 입력</h2>
-      <input
-        type="text"
-        id="studentName"
-        placeholder="이름을 입력해주세요 (예: 홍길동)"
-        style="width:100%; padding:14px; border:2px solid #d1fae5; border-radius:10px;
-               font-size:1rem; font-family:'Noto Sans KR',sans-serif; outline:none;"
-  />
-</div>
-      <!-- 제출 버튼 -->
-      <div class="submit-area">
-        <button id="submitBtn" class="submit-btn">
-          🌱 제출하고 결과 보기
-        </button>
-        <div id="loadingMsg" class="loading-msg hidden">
-          <span class="spinner"></span> AI가 채점 중이에요, 잠시만 기다려주세요...
-        </div>
-        <div id="errorMsg" class="error-msg hidden"></div>
+        <p style="font-size:0.8rem; color:#9ca3af; margin-top:32px;">
+          AI 기반 다중양식 성찰 평가 시스템 · 2026
+        </p>
       </div>
     </div>
-
-    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

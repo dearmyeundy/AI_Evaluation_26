@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>검토 중</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="waiting-wrapper">
+  <div class="waiting-box">
+        <div class="waiting-icon">🌱</div>
+        <h1>제출 완료!</h1>
+        <p class="waiting-desc">
+          선생님이 소중한 작품을 검토하고 있어요.<br/>
+          검토가 완료되면 결과를 확인할 수 있어요!
+        </p>
+        <div class="waiting-status" id="waitingStatus">
+          <span class="spinner"></span>
+          <span id="statusText">선생님이 검토 중이에요...</span>
+        </div>
+        <div id="resultReady" class="hidden" style="margin-top:24px;">
+          <p style="color:#16a34a; font-weight:700; margin-bottom:16px;">
+            ✅ 선생님이 검토를 완료했어요!
+          </p>
+          <button onclick="location.href='/result.html'" class="submit-btn">
+            🌸 결과 보러 가기
+          </button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/waiting.js"></script>
+  </body>
+</html>

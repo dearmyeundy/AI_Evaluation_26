@@ -73,6 +73,40 @@
           피드백을 불러오는 중...
         </div>
       </div>
+<!-- 성장 질문 섹션 -->
+<div class="task-section" id="growthSection">
+  <h2>🌿 더 깊이 생각해보기</h2>
+  <p class="task-desc">AI 선생님이 오늘 네 결과를 보고 질문을 준비했어!</p>
+
+  <!-- 질문 로딩 -->
+  <div id="growthLoading" class="loading-msg">
+    <span class="spinner"></span> 질문을 준비하는 중...
+  </div>
+
+  <!-- 대화 영역 -->
+  <div id="growthChat" class="hidden">
+    <div id="chatMessages" class="chat-messages"></div>
+    <div class="chat-input-area">
+      <textarea
+        id="chatInput"
+        placeholder="여기에 답변을 써주세요..."
+        rows="3"
+      ></textarea>
+      <button id="chatSendBtn" class="submit-btn" style="padding:12px 28px; font-size:0.95rem; margin-top:10px; width:100%;">
+        💬 답변 보내기
+      </button>
+    </div>
+  </div>
+
+  <!-- 최종 성찰 한 줄 -->
+  <div id="finalReflection" class="hidden">
+    <div class="reflection-complete">
+      <div style="font-size:2rem; margin-bottom:8px;">✨</div>
+      <h3 style="color:#166534; margin-bottom:8px;">오늘의 성찰 한 줄</h3>
+      <div id="reflectionText" class="feedback-box" style="text-align:center; font-weight:500;"></div>
+    </div>
+  </div>
+</div>
 
       <!-- 다시 작성 버튼 -->
       <div style="text-align:center;">
