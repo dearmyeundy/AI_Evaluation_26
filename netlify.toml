@@ -4,7 +4,11 @@
 
 [functions]
   directory = "netlify/functions"
+ node_bundler = "esbuild"
 
+[functions."score"]
+  timeout = 26
+  
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"

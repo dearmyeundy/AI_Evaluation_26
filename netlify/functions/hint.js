@@ -42,7 +42,7 @@ JSON 형식으로만 응답하세요:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 100,
+        max_tokens: 300,
         messages: [{ role: "user", content: prompt }],
       }),
     });
