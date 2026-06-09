@@ -1,6 +1,7 @@
 export default async (req) => {
   if (req.method === "OPTIONS" || req.method === "GET") {
     return new Response(JSON.stringify({ status: "ok" }), {
+    return new Response(JSON.stringify({ status: "ok" }), {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
