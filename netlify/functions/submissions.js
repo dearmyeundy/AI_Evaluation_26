@@ -1,4 +1,4 @@
-import { getStore }  from "@netlify/blobs";
+import { getStore } from "@netlify/blobs";
 
 export default async (req) => {
   if (req.method === "OPTIONS") {
@@ -17,10 +17,22 @@ export default async (req) => {
   if (req.method === "GET") {
     try {
       const { blobs } = await store.list();
+      if (!blobs || blobs.length === 0) {
+        return new Response(JSON.stringify([]), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      }
       const submissions = await Promise.all(
         blobs.map((blob) => store.get(blob.key, { type: "json" }))
       );
-      return new Response(JSON.stringify(submissions.filter(Boolean)), {
+      const filtered = submissions.filter(Boolean).sort(
+        (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+      );
+      return new Response(JSON.stringify(filtered), {
         status: 200,
         headers: {
           "Content-Type": "application/json",
@@ -30,7 +42,10 @@ export default async (req) => {
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       });
     }
   }
@@ -41,7 +56,13 @@ export default async (req) => {
       const { id, teacherFeedback, approved } = await req.json();
       const existing = await store.get(id, { type: "json" });
       if (!existing) {
-        return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+        return new Response(JSON.stringify({ error: "Not found" }), {
+          status: 404,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
       }
       const updated = { ...existing, teacherFeedback, approved };
       await store.setJSON(id, updated);
@@ -55,10 +76,21 @@ export default async (req) => {
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       });
     }
   }
+
+  return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    status: 405,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
 };
 
 export const config = { path: "/api/submissions" };

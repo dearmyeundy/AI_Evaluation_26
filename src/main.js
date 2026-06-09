@@ -9,8 +9,6 @@ let isRotating = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 let activeShapeType = null;
-
-// 선 그리기 상태
 let isDrawingLine = false;
 let lineStartX = 0;
 let lineStartY = 0;
@@ -52,10 +50,8 @@ function drawShape(s) {
     return;
   }
 
-  // 도형 중심 기준 회전
   ctx.translate(s.x, s.y);
   ctx.rotate(s.rotation || 0);
-
   ctx.strokeStyle = isSelected ? "#3b82f6" : "#1a1a1a";
   ctx.lineWidth = isSelected ? 3 : 2;
   ctx.beginPath();
@@ -73,23 +69,18 @@ function drawShape(s) {
 
   ctx.stroke();
 
-  // 선택 시 핸들 표시
   if (isSelected) {
     const half = s.size / 2;
-
-    // 크기 조절 핸들 (오른쪽 아래, 파란색)
     ctx.fillStyle = "#3b82f6";
     ctx.beginPath();
     ctx.arc(half, half, 7, 0, Math.PI * 2);
     ctx.fill();
 
-    // 회전 핸들 (위쪽, 초록색)
     ctx.fillStyle = "#22c55e";
     ctx.beginPath();
     ctx.arc(0, -half - 20, 7, 0, Math.PI * 2);
     ctx.fill();
 
-    // 회전 핸들 연결선
     ctx.strokeStyle = "#22c55e";
     ctx.lineWidth = 1.5;
     ctx.setLineDash([3, 2]);
@@ -127,7 +118,6 @@ function findShape(x, y) {
       const cy = s.y1 + t * dy;
       return Math.sqrt((x - cx) ** 2 + (y - cy) ** 2) < 12;
     }
-    // 회전 역변환 적용해서 실제 클릭 위치 정확히 계산
     const cos = Math.cos(-(s.rotation || 0));
     const sin = Math.sin(-(s.rotation || 0));
     const dx = x - s.x;
@@ -135,26 +125,18 @@ function findShape(x, y) {
     const localX = dx * cos - dy * sin;
     const localY = dx * sin + dy * cos;
     const half = s.size / 2;
-    // 각 도형 모양에 맞는 히트박스
-    if (s.type === "circle") {
-      return Math.sqrt(localX ** 2 + localY ** 2) < half;
-    } else if (s.type === "triangle" || s.type === "rect") {
-      return Math.abs(localX) < half && Math.abs(localY) < half;
-    }
+    if (s.type === "circle") return Math.sqrt(localX ** 2 + localY ** 2) < half;
+    if (s.type === "triangle" || s.type === "rect") return Math.abs(localX) < half && Math.abs(localY) < half;
     return false;
   });
 }
 
-// 로컬 좌표로 변환 (회전 역변환)
 function toLocalPos(shape, x, y) {
   const dx = x - shape.x;
   const dy = y - shape.y;
   const cos = Math.cos(-(shape.rotation || 0));
   const sin = Math.sin(-(shape.rotation || 0));
-  return {
-    x: dx * cos - dy * sin,
-    y: dx * sin + dy * cos,
-  };
+  return { x: dx * cos - dy * sin, y: dx * sin + dy * cos };
 }
 
 function isOnResizeHandle(shape, x, y) {
@@ -171,26 +153,17 @@ function isOnRotateHandle(shape, x, y) {
   return Math.sqrt(local.x ** 2 + (local.y + half + 20) ** 2) < 12;
 }
 
+// 마우스 이벤트
 canvas.addEventListener("mousedown", (e) => {
   const pos = getCanvasPos(e);
-
   if (activeShapeType === "line") {
     isDrawingLine = true;
     lineStartX = pos.x;
     lineStartY = pos.y;
     return;
   }
-
-  if (selectedShape && isOnRotateHandle(selectedShape, pos.x, pos.y)) {
-    isRotating = true;
-    return;
-  }
-
-  if (selectedShape && isOnResizeHandle(selectedShape, pos.x, pos.y)) {
-    isResizing = true;
-    return;
-  }
-
+  if (selectedShape && isOnRotateHandle(selectedShape, pos.x, pos.y)) { isRotating = true; return; }
+  if (selectedShape && isOnResizeHandle(selectedShape, pos.x, pos.y)) { isResizing = true; return; }
   const found = findShape(pos.x, pos.y);
   if (found) {
     selectedShape = found;
@@ -211,7 +184,6 @@ canvas.addEventListener("mousedown", (e) => {
 
 canvas.addEventListener("mousemove", (e) => {
   const pos = getCanvasPos(e);
-
   if (isDrawingLine) {
     drawAll();
     ctx.save();
@@ -224,14 +196,11 @@ canvas.addEventListener("mousemove", (e) => {
     ctx.restore();
     return;
   }
-
   if (isRotating && selectedShape) {
-    const angle = Math.atan2(pos.y - selectedShape.y, pos.x - selectedShape.x);
-    selectedShape.rotation = angle + Math.PI / 2;
+    selectedShape.rotation = Math.atan2(pos.y - selectedShape.y, pos.x - selectedShape.x) + Math.PI / 2;
     drawAll();
     return;
   }
-
   if (isResizing && selectedShape) {
     const dx = pos.x - selectedShape.x;
     const dy = pos.y - selectedShape.y;
@@ -239,15 +208,12 @@ canvas.addEventListener("mousemove", (e) => {
     drawAll();
     return;
   }
-
   if (isDragging && selectedShape) {
     if (selectedShape.type === "line") {
       const dx = pos.x - dragOffsetX - selectedShape.x1;
       const dy = pos.y - dragOffsetY - selectedShape.y1;
-      selectedShape.x1 += dx;
-      selectedShape.y1 += dy;
-      selectedShape.x2 += dx;
-      selectedShape.y2 += dy;
+      selectedShape.x1 += dx; selectedShape.y1 += dy;
+      selectedShape.x2 += dx; selectedShape.y2 += dy;
       dragOffsetX = pos.x - selectedShape.x1;
       dragOffsetY = pos.y - selectedShape.y1;
     } else {
@@ -256,16 +222,10 @@ canvas.addEventListener("mousemove", (e) => {
     }
     drawAll();
   }
-
-  // 커서 모양 변경
   if (selectedShape && selectedShape.type !== "line") {
-    if (isOnRotateHandle(selectedShape, pos.x, pos.y)) {
-      canvas.style.cursor = "grab";
-    } else if (isOnResizeHandle(selectedShape, pos.x, pos.y)) {
-      canvas.style.cursor = "nwse-resize";
-    } else {
-      canvas.style.cursor = "move";
-    }
+    if (isOnRotateHandle(selectedShape, pos.x, pos.y)) canvas.style.cursor = "grab";
+    else if (isOnResizeHandle(selectedShape, pos.x, pos.y)) canvas.style.cursor = "nwse-resize";
+    else canvas.style.cursor = "move";
   } else {
     canvas.style.cursor = activeShapeType === "line" ? "crosshair" : "default";
   }
@@ -273,25 +233,16 @@ canvas.addEventListener("mousemove", (e) => {
 
 canvas.addEventListener("mouseup", (e) => {
   const pos = getCanvasPos(e);
-
   if (isDrawingLine) {
     isDrawingLine = false;
     const len = Math.sqrt((pos.x - lineStartX) ** 2 + (pos.y - lineStartY) ** 2);
     if (len > 10) {
-      shapes.push({
-        id: Date.now(),
-        type: "line",
-        x1: lineStartX,
-        y1: lineStartY,
-        x2: pos.x,
-        y2: pos.y,
-      });
+      shapes.push({ id: Date.now(), type: "line", x1: lineStartX, y1: lineStartY, x2: pos.x, y2: pos.y });
       selectedShape = shapes[shapes.length - 1];
       drawAll();
     }
     return;
   }
-
   isDragging = false;
   isResizing = false;
   isRotating = false;
@@ -327,15 +278,28 @@ document.getElementById("clearBtn").addEventListener("click", () => {
   drawAll();
 });
 
+// 그림 저장하기
+document.getElementById("saveCanvasBtn").addEventListener("click", () => {
+  sessionStorage.setItem("savedShapes", JSON.stringify(shapes));
+  const msg = document.getElementById("saveCanvasMsg");
+  msg.classList.remove("hidden");
+  setTimeout(() => msg.classList.add("hidden"), 2000);
+});
+
+// 페이지 로드 시 저장된 그림 복원
+const savedShapes = sessionStorage.getItem("savedShapes");
+if (savedShapes) {
+  shapes = JSON.parse(savedShapes);
+  drawAll();
+}
+
 // 문장 수 카운트
 const essayInput = document.getElementById("essayInput");
 const sentenceCount = document.getElementById("sentenceCount");
 
 essayInput.addEventListener("input", () => {
   const text = essayInput.value.trim();
-  const count = text
-    ? text.split(/[.!?。]+/).filter((s) => s.trim().length > 0).length
-    : 0;
+  const count = text ? text.split(/[.!?。]+/).filter((s) => s.trim().length > 0).length : 0;
   sentenceCount.textContent = count;
 });
 
@@ -353,13 +317,11 @@ submitBtn.addEventListener("click", async () => {
     errorMsg.classList.remove("hidden");
     return;
   }
-
   if (!essay) {
     errorMsg.textContent = "❗ 에세이를 작성해주세요.";
     errorMsg.classList.remove("hidden");
     return;
   }
-
   if (essay.split(/[.!?。]+/).filter((s) => s.trim().length > 0).length < 3) {
     errorMsg.textContent = "❗ 최소 3문장 이상 작성해주세요.";
     errorMsg.classList.remove("hidden");
@@ -373,43 +335,30 @@ submitBtn.addEventListener("click", async () => {
     line: shapes.filter((s) => s.type === "line").length,
   };
 
+  // 캔버스 이미지 캡처
+  selectedShape = null;
+  drawAll();
+  const canvasImage = canvas.toDataURL("image/png");
+
+  // 제출 ID 생성
+  const submissionId = Date.now().toString();
+  sessionStorage.setItem("submissionId", submissionId);
+
   submitBtn.disabled = true;
   loadingMsg.classList.remove("hidden");
   errorMsg.classList.add("hidden");
 
-  try {
-   // Background Function 호출 (즉시 반환)
-await fetch("/api/score", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ essay, shapes: shapeSummary, name, canvasImage, submissionId }),
-});
+  // Background Function 호출 (응답 기다리지 않음)
+  fetch("/api/score", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ essay, shapes: shapeSummary, name, canvasImage, submissionId }),
+  }).catch(() => {});
 
-// 바로 대기 화면으로 이동
-sessionStorage.setItem("essayText", essay);
-sessionStorage.setItem("studentName", name);
-window.location.href = "/waiting.html";
-
-  } catch (err) {
-    errorMsg.textContent = "❗ " + err.message;
-    errorMsg.classList.remove("hidden");
-    submitBtn.disabled = false;
-    loadingMsg.classList.add("hidden");
-  }
-  // 그림 저장하기
-document.getElementById("saveCanvasBtn").addEventListener("click", () => {
-  sessionStorage.setItem("savedShapes", JSON.stringify(shapes));
-  const msg = document.getElementById("saveCanvasMsg");
-  msg.classList.remove("hidden");
-  setTimeout(() => msg.classList.add("hidden"), 2000);
-});
-
-// 페이지 로드 시 저장된 그림 복원
-const savedShapes = sessionStorage.getItem("savedShapes");
-if (savedShapes) {
-  shapes = JSON.parse(savedShapes);
-  drawAll();
-}
+  // 바로 대기 화면으로 이동
+  sessionStorage.setItem("essayText", essay);
+  sessionStorage.setItem("studentName", name);
+  window.location.href = "/waiting.html";
 });
 
 // 힌트 기능
@@ -427,13 +376,8 @@ hintBtn.addEventListener("click", async () => {
     line: shapes.filter((s) => s.type === "line").length,
   };
 
-  // 말풍선 표시 + 로딩
   hintBubble.classList.remove("hidden");
-  hintContent.innerHTML = `
-    <div class="hint-loading">
-      <span class="spinner"></span> 힌트를 생각하는 중...
-    </div>
-  `;
+  hintContent.innerHTML = `<div class="hint-loading"><span class="spinner"></span> 힌트를 생각하는 중...</div>`;
 
   try {
     const response = await fetch("/api/hint", {
@@ -441,14 +385,10 @@ hintBtn.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ essay, shapes: shapeSummary }),
     });
-
     const data = await response.json();
-console.log("힌트 응답:", data);
-if (data.hint) {
-  hintContent.innerHTML = `<p>${data.hint}</p>`;
-} else {
-  hintContent.innerHTML = `<p>${data.error || "힌트를 불러오지 못했어요 😢"}</p>`;
-}
+    hintContent.innerHTML = data.hint
+      ? `<p>${data.hint}</p>`
+      : `<p>${data.error || "힌트를 불러오지 못했어요 😢"}</p>`;
   } catch (err) {
     hintContent.innerHTML = `<p style="color:#dc2626;">힌트를 불러오지 못했어요 😢</p>`;
   }
