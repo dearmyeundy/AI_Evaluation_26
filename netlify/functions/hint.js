@@ -1,7 +1,6 @@
 export default async (req) => {
   if (req.method === "OPTIONS" || req.method === "GET") {
     return new Response(JSON.stringify({ status: "ok" }), {
-    return new Response(JSON.stringify({ status: "ok" }), {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
@@ -43,7 +42,7 @@ JSON 형식으로만 응답하세요:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 300,
+        max_tokens: 100,
         messages: [{ role: "user", content: prompt }],
       }),
     });
