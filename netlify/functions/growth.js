@@ -52,7 +52,7 @@ JSON으로만 응답: {"message": "질문 내용", "isComplete": false}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 200,
+        max_tokens: 500,
         system: systemPrompt,
         messages: apiMessages,
       }),
