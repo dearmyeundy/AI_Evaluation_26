@@ -381,7 +381,7 @@ submitBtn.addEventListener("click", async () => {
     const response = await fetch("/api/score", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ essay, shapes: shapeSummary }),
+      body: JSON.stringify({ essay, shapes: shapeSummary, name, canvasImage, submissionId  }),
     });
 
     if (!response.ok) throw new Error("서버 오류가 발생했습니다.");

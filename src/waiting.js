@@ -1,16 +1,29 @@
 const submissionId = sessionStorage.getItem("submissionId");
 
-function checkApproval() {
-  const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-  const submission = submissions.find((s) => s.id === submissionId);
+async function checkApproval() {
+  try {
+    const response = await fetch("/api/submissions");
+    const submissions = await response.json();
+    const submission = submissions.find((s) => s.id === submissionId);
 
-  if (submission && submission.approved) {
-    document.getElementById("waitingStatus").classList.add("hidden");
-    document.getElementById("resultReady").classList.remove("hidden");
-    clearInterval(pollInterval);
+    if (submission && submission.approved) {
+      // 승인된 피드백을 sessionStorage에 저장
+      sessionStorage.setItem("scoreResult", JSON.stringify(submission.result));
+      sessionStorage.setItem("essayText", submission.essay);
+      if (submission.teacherFeedback) {
+        const result = JSON.parse(sessionStorage.getItem("scoreResult"));
+        result.feedback = submission.teacherFeedback;
+        sessionStorage.setItem("scoreResult", JSON.stringify(result));
+      }
+
+      document.getElementById("waitingStatus").classList.add("hidden");
+      document.getElementById("resultReady").classList.remove("hidden");
+      clearInterval(pollInterval);
+    }
+  } catch (err) {
+    console.error("승인 확인 오류:", err);
   }
 }
 
-// 3초마다 승인 여부 확인
 const pollInterval = setInterval(checkApproval, 3000);
-checkApproval(); // 즉시 한 번 확인
+checkApproval();

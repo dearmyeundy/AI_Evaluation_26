@@ -1,3 +1,5 @@
+import { getStore } from "@netlify/blobs";
+
 export default async (req, context) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -17,7 +19,7 @@ export default async (req, context) => {
   }
 
   try {
-    const { essay, shapes } = await req.json();
+    const { essay, shapes, name, canvasImage, submissionId } = await req.json();
 
     const shapeSummary = shapes
       ? `사용한 도형: 원(○) ${shapes.circle || 0}개, 삼각형(△) ${shapes.triangle || 0}개, 사각형(□) ${shapes.rect || 0}개, 선 ${shapes.line || 0}개`
@@ -44,7 +46,6 @@ export default async (req, context) => {
 - 과제 조건 준수: #조건_완벽_준수, #형식_완성, #가이드_이행, #대부분_준수, #일부_미흡, #문장_수정_필요, #조건_일부_위반, #규칙_재확인, #형식_보완, #조건_전반_위반, #미완성, #가이드_미달
 
 [수준별 피드백 전략]
-학생의 종합 수준에 따라 아래 전략으로 피드백을 작성하세요.
 - 완성: 강점을 동료처럼 인정하고, 더 깊은 사고로 확장할 수 있는 질문을 한 가지 덧붙이세요.
 - 발전: 잘한 점을 먼저 구체적으로 언급하고, 한 가지 보완 방향을 친절하게 제안하세요.
 - 시도: 시도한 것 자체를 인정하고, 다음에 어떻게 하면 좋을지 쉽고 구체적인 힌트를 제공하세요.
@@ -119,6 +120,19 @@ export default async (req, context) => {
     const cleaned = resultText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const result = JSON.parse(cleaned);
 
+    // Netlify Blobs에 저장
+    const store = getStore("submissions");
+    const submission = {
+      id: submissionId,
+      name,
+      essay,
+      result,
+      canvasImage,
+      approved: false,
+      submittedAt: new Date().toLocaleString("ko-KR"),
+    };
+    await store.setJSON(submissionId, submission);
+
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: {
@@ -137,6 +151,4 @@ export default async (req, context) => {
   }
 };
 
-export const config = {
-  path: "/api/score",
-};
+export const config = { path: "/api/score" };

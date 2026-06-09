@@ -10,19 +10,22 @@ const emptyState = document.getElementById("emptyState");
 const defaultState = document.getElementById("defaultState");
 const detailPanel = document.getElementById("detailPanel");
 
-let currentIndex = null;
+let currentSubmission = null;
+let allSubmissions = [];
 
-function getSubmissions() {
-  const data = localStorage.getItem("submissions");
-  return data ? JSON.parse(data) : [];
+// Blobs에서 제출 목록 불러오기
+async function getSubmissions() {
+  const response = await fetch("/api/submissions");
+  const data = await response.json();
+  return Array.isArray(data) ? data.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)) : [];
 }
 
 // 로그인
-loginBtn.addEventListener("click", () => {
+loginBtn.addEventListener("click", async () => {
   if (passwordInput.value === TEACHER_PASSWORD) {
     loginScreen.classList.add("hidden");
     dashboard.classList.remove("hidden");
-    renderStudentList();
+    await renderStudentList();
   } else {
     loginError.classList.remove("hidden");
     passwordInput.value = "";
@@ -34,25 +37,23 @@ passwordInput.addEventListener("keydown", (e) => {
 });
 
 // 학생 목록 렌더링
-function renderStudentList() {
-  const submissions = getSubmissions();
+async function renderStudentList() {
+  studentList.innerHTML = `<div style="text-align:center; padding:20px; color:#9ca3af;">불러오는 중...</div>`;
+  allSubmissions = await getSubmissions();
 
-  if (submissions.length === 0) {
+  if (allSubmissions.length === 0) {
     emptyState.classList.remove("hidden");
     studentList.innerHTML = "";
     return;
   }
 
   emptyState.classList.add("hidden");
-  studentList.innerHTML = submissions
-    .slice()
-    .reverse()
+  studentList.innerHTML = allSubmissions
     .map((s, i) => {
-      const realIndex = submissions.length - 1 - i;
       const total = s.result.scores.reflection + s.result.scores.coherence +
                     s.result.scores.symbolism + s.result.scores.format;
       return `
-        <div class="student-card" id="card-${realIndex}" onclick="openDetail(${realIndex})">
+        <div class="student-card ${s.approved ? 'approved' : ''}" id="card-${i}" onclick="openDetail(${i})">
           <div style="display:flex; align-items:center; gap:10px;">
             <div style="width:36px; height:36px; background:#dcfce7; border-radius:50%;
                         display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
@@ -60,7 +61,7 @@ function renderStudentList() {
             </div>
             <div>
               <div class="student-name">${s.name}</div>
-              <div class="student-meta">${s.submittedAt}</div>
+              <div class="student-meta">${s.submittedAt} ${s.approved ? '✅' : '🕐'}</div>
             </div>
           </div>
           <div class="student-score">${total}<span>/ 20</span></div>
@@ -72,24 +73,21 @@ function renderStudentList() {
 
 // 상세 패널 열기
 window.openDetail = function (index) {
-  currentIndex = index;
-  const submissions = getSubmissions();
-  const s = submissions[index];
-  if (!s) return;
+  currentSubmission = allSubmissions[index];
+  if (!currentSubmission) return;
 
-  // 카드 활성화
   document.querySelectorAll(".student-card").forEach((c) => c.classList.remove("active"));
   const card = document.getElementById(`card-${index}`);
   if (card) card.classList.add("active");
 
-  // 헤더
+  const s = currentSubmission;
   const total = s.result.scores.reflection + s.result.scores.coherence +
                 s.result.scores.symbolism + s.result.scores.format;
+
   document.getElementById("detailStudentName").textContent = s.name + " 학생";
   document.getElementById("detailSubmittedAt").textContent = s.submittedAt;
   document.getElementById("detailTotal").textContent = total;
 
-  // 루브릭 바
   const rubricItems = [
     { label: "① 자기 경험 연계 서술", score: s.result.scores.reflection, max: 8, level: s.result.levels.reflection },
     { label: "② 그림-글 연결 일관성", score: s.result.scores.coherence, max: 6, level: s.result.levels.coherence },
@@ -111,7 +109,6 @@ window.openDetail = function (index) {
     `)
     .join("");
 
-  // 그림
   const modalCanvas = document.getElementById("modalCanvas");
   if (s.canvasImage) {
     modalCanvas.src = s.canvasImage;
@@ -120,59 +117,79 @@ window.openDetail = function (index) {
     modalCanvas.style.display = "none";
   }
 
-  // 에세이
   document.getElementById("modalEssay").textContent = s.essay;
-
-  // 키워드
   document.getElementById("modalKeywords").innerHTML = s.result.keywords
     .map((kw) => `<span class="keyword-tag">${kw}</span>`)
     .join("");
-
-  // 피드백
   document.getElementById("modalFeedback").value = s.teacherFeedback || s.result.feedback;
 
-  // 패널 표시
+  // 승인 버튼 상태
+  const approveBtn = document.getElementById("approveBtn");
+  if (s.approved) {
+    approveBtn.textContent = "✅ 승인 완료";
+    approveBtn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
+    approveBtn.disabled = true;
+  } else {
+    approveBtn.textContent = "✅ 승인하기";
+    approveBtn.style.background = "linear-gradient(135deg, #3b82f6, #1d4ed8)";
+    approveBtn.disabled = false;
+  }
+
   defaultState.classList.add("hidden");
   detailPanel.classList.remove("hidden");
 };
 
 // 저장
-document.getElementById("saveFeedbackBtn").addEventListener("click", () => {
-  if (currentIndex === null) return;
-  const submissions = getSubmissions();
-  submissions[currentIndex].teacherFeedback = document.getElementById("modalFeedback").value;
-  localStorage.setItem("submissions", JSON.stringify(submissions));
+document.getElementById("saveFeedbackBtn").addEventListener("click", async () => {
+  if (!currentSubmission) return;
+  const feedback = document.getElementById("modalFeedback").value;
+
+  await fetch("/api/submissions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: currentSubmission.id,
+      teacherFeedback: feedback,
+      approved: currentSubmission.approved,
+    }),
+  });
+
+  currentSubmission.teacherFeedback = feedback;
   const btn = document.getElementById("saveFeedbackBtn");
   btn.textContent = "✅ 저장됨";
   setTimeout(() => { btn.textContent = "💾 저장"; }, 2000);
 });
-// 승인 버튼
-document.getElementById("approveBtn").addEventListener("click", () => {
-  if (currentIndex === null) return;
-  const submissions = getSubmissions();
 
-  // 피드백 저장 + 승인 처리
-  submissions[currentIndex].teacherFeedback = document.getElementById("modalFeedback").value;
-  submissions[currentIndex].approved = true;
-  localStorage.setItem("submissions", JSON.stringify(submissions));
+// 승인
+document.getElementById("approveBtn").addEventListener("click", async () => {
+  if (!currentSubmission) return;
+  const feedback = document.getElementById("modalFeedback").value;
+
+  await fetch("/api/submissions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: currentSubmission.id,
+      teacherFeedback: feedback,
+      approved: true,
+    }),
+  });
+
+  currentSubmission.approved = true;
+  currentSubmission.teacherFeedback = feedback;
 
   const btn = document.getElementById("approveBtn");
-  btn.textContent = "✅ 승인 완료!";
+  btn.textContent = "✅ 승인 완료";
   btn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
   btn.disabled = true;
 
-  // 카드에 승인 표시
-  const card = document.getElementById(`card-${currentIndex}`);
-  if (card) {
-    card.style.borderColor = "#22c55e";
-    card.style.background = "#f0fdf4";
-  }
+  await renderStudentList();
 });
+
 // 추출
 document.getElementById("exportBtn").addEventListener("click", () => {
-  if (currentIndex === null) return;
-  const submissions = getSubmissions();
-  const s = submissions[currentIndex];
+  if (!currentSubmission) return;
+  const s = currentSubmission;
   const feedback = document.getElementById("modalFeedback").value;
   const total = s.result.scores.reflection + s.result.scores.coherence +
                 s.result.scores.symbolism + s.result.scores.format;
