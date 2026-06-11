@@ -26,10 +26,10 @@ if (!raw) {
     `${total} <span>/ 20점</span>`;
 
   // 항목별 점수
-  document.getElementById("scoreReflection").textContent = `${scores.reflection}점`;
-  document.getElementById("scoreCoherence").textContent = `${scores.coherence}점`;
-  document.getElementById("scoreSymbolism").textContent = `${scores.symbolism}점`;
-  document.getElementById("scoreFormat").textContent = `${scores.format}점`;
+  document.getElementById("scoreReflection").textContent = `${scores.reflection} / 8점`;
+document.getElementById("scoreCoherence").textContent = `${scores.coherence} / 6점`;
+document.getElementById("scoreSymbolism").textContent = `${scores.symbolism} / 4점`;
+document.getElementById("scoreFormat").textContent = `${scores.format} / 2점`;
 
   // 수준
   document.getElementById("levelReflection").textContent = levels.reflection;
